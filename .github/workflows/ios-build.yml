@@ -9,10 +9,10 @@ jobs:
     runs-on: macos-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Node.js 20
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
     
@@ -82,7 +82,7 @@ jobs:
         npx cap add ios
         npx cap sync ios
 
-    - name: Build iOS project (without signing)
+    - name: Build iOS project
       run: |
         cd ios/App
         pod install --repo-update
@@ -102,7 +102,20 @@ jobs:
         echo "Created iOS project archive for download"
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: prentissippi-ios-project
         path: prentissippi-ios-project.tar.gz
+
+    - name: Show success message
+      run: |
+        echo "SUCCESS: Prentissippi iOS project built and archived!"
+        echo ""
+        echo "Next steps:"
+        echo "1. Download the build artifact from GitHub Actions"
+        echo "2. Extract the project files on a Mac"
+        echo "3. Open ios/App/App.xcworkspace in Xcode"
+        echo "4. Configure your Apple Developer account for signing"
+        echo "5. Archive and upload to App Store Connect"
+        echo ""
+        echo "Your golf tournament app is ready for the App Store!"
