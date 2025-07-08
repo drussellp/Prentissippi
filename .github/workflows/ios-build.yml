@@ -1,36 +1,64 @@
-name: Debug and Build
+name: Simple iOS Build
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  debug:
+  build:
     runs-on: macos-latest
     
     steps:
     - uses: actions/checkout@v3
     
-    - name: Show what files we have
-      run: |
-        echo "=== ROOT DIRECTORY ==="
-        ls -la
-        echo "=== ALL FILES ==="
-        find . -type f | sort
-        echo "=== HTML FILES ==="
-        find . -name "*.html"
-        echo "=== FOLDERS ==="
-        find . -type d
-    
-    - name: Setup basic app
+    - name: Create web app
       run: |
         mkdir -p dist/public
-        echo '<!DOCTYPE html><html><head><title>Prentissippi</title></head><body><h1>Prentissippi Golf Tournament</h1></body></html>' > dist/public/index.html
-        echo "Created basic HTML file"
-    
-    - name: Install Capacitor and create iOS project
+        cat > dist/public/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Prentissippi</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 40px; text-align: center; }
+            .header { color: #1a5f3f; margin-bottom: 30px; }
+            .feature { margin: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+          </style>
+        </head>
+        <body>
+          <h1 class="header">Prentissippi Golf Tournament</h1>
+          <div class="feature">
+            <h3>🏆 Tournament Management</h3>
+            <p>Professional golf tournament scoring system</p>
+          </div>
+          <div class="feature">
+            <h3>📊 Real-time Scoring</h3>
+            <p>Live leaderboards and score tracking</p>
+          </div>
+          <div class="feature">
+            <h3>📍 GPS Features</h3>
+            <p>Distance tracking and course navigation</p>
+          </div>
+        </body>
+        </html>
+        EOF
+
+    - name: Create Capacitor config
       run: |
-        npm install -g @capacitor/cli
-        npx cap init "Prentissippi" "com.golftournament.scorekeeper" --web-dir="dist/public"
+        cat > capacitor.config.json << 'EOF'
+        {
+          "appId": "com.golftournament.scorekeeper",
+          "appName": "Prentissippi",
+          "webDir": "dist/public"
+        }
+        EOF
+
+    - name: Build iOS app
+      run: |
+        npm install -g @capacitor/cli @capacitor/core @capacitor/ios
+        npx cap init --config=capacitor.config.json
         npx cap add ios
-        echo "iOS project created"
+        npx cap sync ios
+        echo "iOS project created successfully!"
