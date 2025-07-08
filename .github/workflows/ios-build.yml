@@ -11,10 +11,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Setup Node.js
+    - name: Setup Node.js 20
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '20'
     
     - name: Create Prentissippi web app
       run: |
@@ -32,17 +32,20 @@ jobs:
             body { 
               font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
               background: linear-gradient(135deg, #1a5f3f 0%, #2d7a52 100%);
-              color: white; margin: 0; padding: 20px; min-height: 100vh; text-align: center;
+              color: white; margin: 0; padding: 20px; min-height: 100vh; 
+              display: flex; align-items: center; justify-content: center;
             }
-            .container { max-width: 400px; margin: 0 auto; }
-            h1 { font-size: 2.5em; margin: 40px 0 20px 0; font-weight: 300; }
-            .subtitle { opacity: 0.8; margin-bottom: 40px; font-size: 1.1em; }
+            .container { max-width: 400px; text-align: center; }
+            h1 { font-size: 2.5em; margin: 20px 0; font-weight: 300; }
+            .subtitle { opacity: 0.85; margin-bottom: 40px; font-size: 1.1em; }
             .feature { 
               background: rgba(255,255,255,0.15); padding: 20px; margin: 15px 0;
               border-radius: 12px; backdrop-filter: blur(10px);
+              transition: transform 0.2s ease;
             }
+            .feature:hover { transform: translateY(-2px); }
             .icon { font-size: 2.5em; margin-bottom: 15px; }
-            .feature h3 { margin-bottom: 10px; font-size: 1.2em; }
+            .feature h3 { margin-bottom: 10px; font-size: 1.2em; font-weight: 500; }
             .feature p { opacity: 0.9; line-height: 1.4; margin: 0; }
           </style>
         </head>
@@ -54,7 +57,7 @@ jobs:
             <div class="feature">
               <div class="icon">🏆</div>
               <h3>Tournament Scoring</h3>
-              <p>Real-time leaderboards and scoring</p>
+              <p>Real-time leaderboards and professional scoring</p>
             </div>
             
             <div class="feature">
@@ -66,7 +69,7 @@ jobs:
             <div class="feature">
               <div class="icon">📍</div>
               <h3>GPS Features</h3>
-              <p>Course navigation and distances</p>
+              <p>Course navigation and distance tracking</p>
             </div>
           </div>
         </body>
@@ -86,4 +89,4 @@ jobs:
         cd ios/App
         pod install --repo-update
         xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' -allowProvisioningUpdates clean archive
-        echo "iOS build completed!"
+        echo "Prentissippi iOS build completed!"
