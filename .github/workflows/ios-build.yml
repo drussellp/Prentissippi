@@ -1,4 +1,4 @@
-name: Simple iOS Build
+name: Prentissippi iOS Build
 
 on:
   push:
@@ -11,10 +11,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Create web app
+    - name: Clean and setup
       run: |
-        mkdir -p dist/public
-        cat > dist/public/index.html << 'EOF'
+        rm -f capacitor.config.ts tsconfig.json
+        mkdir -p www
+        
+        cat > www/index.html << 'EOF'
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -22,43 +24,53 @@ jobs:
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Prentissippi</title>
           <style>
-            body { font-family: Arial, sans-serif; margin: 40px; text-align: center; }
-            .header { color: #1a5f3f; margin-bottom: 30px; }
-            .feature { margin: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+            body { 
+              font-family: Arial, sans-serif; margin: 0; padding: 20px; 
+              background: linear-gradient(135deg, #1a5f3f 0%, #2d7a52 100%);
+              color: white; min-height: 100vh; text-align: center;
+            }
+            .container { max-width: 600px; margin: 0 auto; }
+            h1 { font-size: 2.5em; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+            .feature { 
+              background: rgba(255,255,255,0.1); padding: 20px; margin: 15px 0;
+              border-radius: 10px; backdrop-filter: blur(10px);
+            }
+            .icon { font-size: 2em; margin-bottom: 10px; }
           </style>
         </head>
         <body>
-          <h1 class="header">Prentissippi Golf Tournament</h1>
-          <div class="feature">
-            <h3>🏆 Tournament Management</h3>
-            <p>Professional golf tournament scoring system</p>
-          </div>
-          <div class="feature">
-            <h3>📊 Real-time Scoring</h3>
-            <p>Live leaderboards and score tracking</p>
-          </div>
-          <div class="feature">
-            <h3>📍 GPS Features</h3>
-            <p>Distance tracking and course navigation</p>
+          <div class="container">
+            <h1>Prentissippi</h1>
+            <div class="feature">
+              <div class="icon">🏆</div>
+              <h3>Tournament Management</h3>
+              <p>Professional golf tournament scoring and management</p>
+            </div>
+            <div class="feature">
+              <div class="icon">📊</div>
+              <h3>Real-time Analytics</h3>
+              <p>Live scoring, leaderboards, and player statistics</p>
+            </div>
+            <div class="feature">
+              <div class="icon">📍</div>
+              <h3>GPS Features</h3>
+              <p>Distance tracking and course navigation</p>
+            </div>
           </div>
         </body>
         </html>
         EOF
 
-    - name: Create Capacitor config
+    - name: Setup Capacitor
       run: |
-        cat > capacitor.config.json << 'EOF'
-        {
-          "appId": "com.golftournament.scorekeeper",
-          "appName": "Prentissippi",
-          "webDir": "dist/public"
-        }
-        EOF
-
-    - name: Build iOS app
-      run: |
-        npm install -g @capacitor/cli @capacitor/core @capacitor/ios
-        npx cap init --config=capacitor.config.json
+        npm init -y
+        npm install @capacitor/core @capacitor/cli @capacitor/ios
+        
+        npx cap init "Prentissippi" "com.golftournament.scorekeeper" --web-dir="www"
         npx cap add ios
         npx cap sync ios
-        echo "iOS project created successfully!"
+
+    - name: Build iOS
+      run: |
+        cd ios && pod install
+        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' archive
