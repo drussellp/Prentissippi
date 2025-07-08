@@ -41,9 +41,7 @@ jobs:
             .feature { 
               background: rgba(255,255,255,0.15); padding: 20px; margin: 15px 0;
               border-radius: 12px; backdrop-filter: blur(10px);
-              transition: transform 0.2s ease;
             }
-            .feature:hover { transform: translateY(-2px); }
             .icon { font-size: 2.5em; margin-bottom: 15px; }
             .feature h3 { margin-bottom: 10px; font-size: 1.2em; font-weight: 500; }
             .feature p { opacity: 0.9; line-height: 1.4; margin: 0; }
@@ -76,7 +74,7 @@ jobs:
         </html>
         EOF
 
-    - name: Setup Capacitor
+    - name: Setup Capacitor project
       run: |
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/ios
@@ -84,9 +82,27 @@ jobs:
         npx cap add ios
         npx cap sync ios
 
-    - name: Build iOS app
+    - name: Build iOS project (without signing)
       run: |
         cd ios/App
         pod install --repo-update
-        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' -allowProvisioningUpdates clean archive
-        echo "Prentissippi iOS build completed!"
+        xcodebuild -workspace App.xcworkspace \
+          -scheme App \
+          -configuration Release \
+          -destination 'generic/platform=iOS' \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          build
+        echo "Prentissippi iOS build completed successfully!"
+
+    - name: Create project archive
+      run: |
+        tar -czf prentissippi-ios-project.tar.gz ios/
+        echo "Created iOS project archive for download"
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: prentissippi-ios-project
+        path: prentissippi-ios-project.tar.gz
