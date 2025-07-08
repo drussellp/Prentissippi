@@ -11,7 +11,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Clean and setup
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Create Prentissippi web app
       run: |
         rm -f capacitor.config.ts tsconfig.json
         mkdir -p www
@@ -25,36 +30,43 @@ jobs:
           <title>Prentissippi</title>
           <style>
             body { 
-              font-family: Arial, sans-serif; margin: 0; padding: 20px; 
+              font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
               background: linear-gradient(135deg, #1a5f3f 0%, #2d7a52 100%);
-              color: white; min-height: 100vh; text-align: center;
+              color: white; margin: 0; padding: 20px; min-height: 100vh; text-align: center;
             }
-            .container { max-width: 600px; margin: 0 auto; }
-            h1 { font-size: 2.5em; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+            .container { max-width: 400px; margin: 0 auto; }
+            h1 { font-size: 2.5em; margin: 40px 0 20px 0; font-weight: 300; }
+            .subtitle { opacity: 0.8; margin-bottom: 40px; font-size: 1.1em; }
             .feature { 
-              background: rgba(255,255,255,0.1); padding: 20px; margin: 15px 0;
-              border-radius: 10px; backdrop-filter: blur(10px);
+              background: rgba(255,255,255,0.15); padding: 20px; margin: 15px 0;
+              border-radius: 12px; backdrop-filter: blur(10px);
             }
-            .icon { font-size: 2em; margin-bottom: 10px; }
+            .icon { font-size: 2.5em; margin-bottom: 15px; }
+            .feature h3 { margin-bottom: 10px; font-size: 1.2em; }
+            .feature p { opacity: 0.9; line-height: 1.4; margin: 0; }
           </style>
         </head>
         <body>
           <div class="container">
-            <h1>Prentissippi</h1>
+            <h1>⛳ Prentissippi</h1>
+            <div class="subtitle">Golf Tournament Management</div>
+            
             <div class="feature">
               <div class="icon">🏆</div>
-              <h3>Tournament Management</h3>
-              <p>Professional golf tournament scoring and management</p>
+              <h3>Tournament Scoring</h3>
+              <p>Real-time leaderboards and scoring</p>
             </div>
+            
             <div class="feature">
               <div class="icon">📊</div>
-              <h3>Real-time Analytics</h3>
-              <p>Live scoring, leaderboards, and player statistics</p>
+              <h3>Player Analytics</h3>
+              <p>Statistics and performance tracking</p>
             </div>
+            
             <div class="feature">
               <div class="icon">📍</div>
               <h3>GPS Features</h3>
-              <p>Distance tracking and course navigation</p>
+              <p>Course navigation and distances</p>
             </div>
           </div>
         </body>
@@ -65,12 +77,13 @@ jobs:
       run: |
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/ios
-        
         npx cap init "Prentissippi" "com.golftournament.scorekeeper" --web-dir="www"
         npx cap add ios
         npx cap sync ios
 
-    - name: Build iOS
+    - name: Build iOS app
       run: |
-        cd ios && pod install
-        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' archive
+        cd ios/App
+        pod install --repo-update
+        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' -allowProvisioningUpdates clean archive
+        echo "iOS build completed!"
